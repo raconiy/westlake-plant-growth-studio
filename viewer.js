@@ -16,8 +16,8 @@ function seek(t,pause=true){if(!length()||!Number.isFinite(film.duration))return
 function refresh(){
     const L=length(),t=logical(),ft=clamp(film.currentTime/(L||1));$('timecode').textContent=secs(t*L);$('duration').textContent=secs(job?.story?.seconds||film.duration);
     $('playhead').style.left=(t*100)+'%';$('seek').value=Math.round(1000*t);
-    const frame=Math.round(t*((job?.story?.frames||1)-1));$('seek').setAttribute('aria-valuetext','第 '+frame+' 帧');
-    $('toggle').innerHTML=film.paused?'▶':'Ⅱ';$('toggle').setAttribute('aria-label',film.paused?'播放':'暂停');
+    const frame=Math.round(t*((job?.story?.frames||1)-1));$('seek').setAttribute('aria-valuetext','Frame '+frame+'');
+    $('toggle').innerHTML=film.paused?'▶':'Ⅱ';$('toggle').setAttribute('aria-label',film.paused?'Play':'Pause');
     const rate=t<selectedOpen?originalOpen/selectedOpen:(1-originalOpen)/(1-selectedOpen);
     if(Number.isFinite(rate)&&Math.abs(rate-film.playbackRate)>.003)film.playbackRate=rate;
     let current=0;[...$('sequence').children].forEach((b,i)=>{if(film.currentTime+.025>=Number(b.dataset.sec))current=i;});
@@ -33,7 +33,7 @@ $('seek').oninput=e=>seek(e.target.value/1000);$('toggle').onclick=toggle;
 $('focusShot').onclick=()=>{tracking=!tracking;$('focusShot').setAttribute('aria-pressed',String(tracking));refresh();};
 $('fullscreen').onclick=()=>{if(document.fullscreenElement)document.exitFullscreen();else if($('theatre').requestFullscreen)$('theatre').requestFullscreen().catch(()=>{});else film.webkitEnterFullscreen?.();};
 function changeOpen(v){const t=logical();selectedOpen=clamp(v,.25,.92);$('onset').value=Math.round(100*selectedOpen);$('onset').style.setProperty('--at',((selectedOpen-.25)/.67*100)+'%');
-    $('onsetValue').textContent='第 '+Math.round(selectedOpen*((job?.story?.frames||1)-1))+' 帧';
+    $('onsetValue').textContent='Frame '+Math.round(selectedOpen*((job?.story?.frames||1)-1))+'';
     $('onset').setAttribute('aria-valuetext',$('onsetValue').textContent);$('undoTiming').disabled=!openChanged();seek(t);
 
 }
@@ -46,7 +46,7 @@ async function playable(path){
         const headers=await fetch(path,{method:'HEAD'});
         if(!headers.ok || headers.headers.get('Accept-Ranges')?.toLowerCase()==='bytes')return path;
         if(!objectUrls.has(path))objectUrls.set(path,fetch(path).then(async r=>{
-            if(!r.ok)throw Error('影片读取失败');
+            if(!r.ok)throw Error('Could not load the film.');
             return URL.createObjectURL(await r.blob());
         }).catch(e=>{objectUrls.delete(path);throw e;}));
         return await objectUrls.get(path);
@@ -60,10 +60,10 @@ async function show(which){
     if(which!=='proxy')proxy.pause();
     $('emptyFilm').hidden=!!job?.video;
     if(which==='mesh'&&job?.mesh){
-        $('emptyFilm').hidden=false;$('emptyFilm').textContent='正在载入可旋转资产…';
+        $('emptyFilm').hidden=false;$('emptyFilm').textContent='Loading the 4D model…';
         await loadMesh(job);
         if(id!==viewRequest){if(view!=='mesh')$('meshPanel').hidden=true;return;}
-        if(!document.querySelector('#meshCanvas').dataset.ready){$('emptyFilm').textContent='此浏览器无法显示 4D 资产';}
+        if(!document.querySelector('#meshCanvas').dataset.ready){$('emptyFilm').textContent='This browser could not display the 4D model.';}
         else{$('meshPanel').hidden=false;$('emptyFilm').hidden=true;if(film.currentTime<.5)seek(originalOpen);}
     }else if(which==='proxy'&&job?.proxy){const path=await playable(job.proxy);if(id!==viewRequest)return;proxy.preload='auto';setSrc(proxy,path);proxy.load();proxy.addEventListener('loadedmetadata',()=>{if(view==='proxy')proxy.currentTime=film.currentTime;},{once:true});}
     refresh();
@@ -88,10 +88,10 @@ $('stripBox').addEventListener('pointermove',e=>{
     const i=hover.querySelector('i');
     i.style.backgroundImage=$('stripArt').style.backgroundImage;i.style.backgroundPosition=(100*index/15)+'% center';
     hover.style.left=clamp(t*r.width,58,r.width-58)+'px';
-    hover.querySelector('span').textContent=secs(t*length())+'  ·  第 '+Math.round(source*(job.story.frames-1))+' 帧';hover.hidden=false;
+    hover.querySelector('span').textContent=secs(t*length())+'  ·  Frame '+Math.round(source*(job.story.frames-1))+'';hover.hidden=false;
 });
 for(const event of ['pointerleave','pointerup','pointercancel'])$('stripBox').addEventListener(event,()=>{hover.hidden=true;});
-function timing(j){originalOpen=j.spec?.plants?.[0]?.open||.78;selectedOpen=originalOpen;$('onset').value=Math.round(100*originalOpen);$('onset').style.setProperty('--at',((originalOpen-.25)/.67*100)+'%');$('onsetValue').textContent='第 '+Math.round(originalOpen*((j.story?.frames||1)-1))+' 帧';$('undoTiming').disabled=true;}
+function timing(j){originalOpen=j.spec?.plants?.[0]?.open||.78;selectedOpen=originalOpen;$('onset').value=Math.round(100*originalOpen);$('onset').style.setProperty('--at',((originalOpen-.25)/.67*100)+'%');$('onsetValue').textContent='Frame '+Math.round(originalOpen*((j.story?.frames||1)-1))+'';$('undoTiming').disabled=true;}
 
 async function selectSpecies(){
     const key=location.hash.slice(1);
@@ -103,14 +103,14 @@ async function selectSpecies(){
          story:{frames:entry.frames,fps:entry.fps,seconds:entry.frames/entry.fps,items:entry.chapters,focus:entry.focus,studio_assets:true}};
     tracking=true;film.dataset.hd='true';$('focusShot').setAttribute('aria-pressed','true');
     $('plate').dataset.species=entry.species;$('filmTitle').textContent=entry.title;$('botanical').textContent=entry.latin;
-    $('portrait').src=dir+'cover.webp';$('portrait').alt=entry.title+'生成花部近景';
+    $('portrait').src=dir+'cover.webp';$('portrait').alt=entry.title+' flower detail';
     film.poster=dir+'poster.jpg';$('pixelSize').textContent=entry.width+' × '+entry.height;
     $('download').href=job.video;$('download').download=entry.species+'-720p.mp4';
     for(const a of $('species').children)a.setAttribute('aria-current',String(a.dataset.sp===entry.species));
     $('sequence').replaceChildren();
     for(const item of entry.chapters){
         const b=document.createElement('button');b.type='button';b.dataset.sec=item.seconds;
-        b.textContent=item.label;b.title='第 '+item.frame+' 帧';
+        b.textContent=item.label;b.title='Frame '+item.frame+'';
         b.onclick=()=>seek(inverse(clamp(item.seconds/(length()||1))));$('sequence').append(b);
     }
     $('stripArt').style.backgroundImage='url('+dir+'strip.jpg)';$('hoverFrame').hidden=true;
@@ -124,7 +124,7 @@ window.addEventListener('hashchange',selectSpecies);
 (async()=>{
     try{
         const response=await fetch('./films.json');
-        if(!response.ok)throw Error('片库读取失败');
+        if(!response.ok)throw Error('Could not load the collection.');
         catalogue=await response.json();
         for(const entry of catalogue){
             const a=document.createElement('a'),img=new Image(),label=document.createElement('span');

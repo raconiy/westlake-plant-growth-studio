@@ -13,7 +13,7 @@ async function loadMesh(job) {
     if(!gl)return;
     try{
         const response=await fetch(job.mesh);
-        if(!response.ok)throw Error('几何预览读取失败');
+        if(!response.ok)throw Error('Could not load the 4D model.');
         const compressed=await response.arrayBuffer();
         const signature=new Uint8Array(compressed,0,2);
         const data=signature[0]===31&&signature[1]===139
@@ -75,7 +75,7 @@ async function loadMesh(job) {
             }
             gl.uniform1f(phase,index-previous);gl.uniform1f(turn,Number(view.value)*Math.PI/180);
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,faces);gl.drawElements(gl.TRIANGLES,info.indices,gl.UNSIGNED_INT,0);
-            document.getElementById('meshReadout').textContent='第 '+time.value+' 帧 · '+view.value+'°';
+            document.getElementById('meshReadout').textContent='Frame '+time.value+' · '+view.value+'°';
         }
         time.oninput=view.oninput=draw;canvas.dataset.ready='1';meshBox.hidden=false;draw();meshObserver=new ResizeObserver(draw);meshObserver.observe(canvas);
     }catch(error){console.error(error);}

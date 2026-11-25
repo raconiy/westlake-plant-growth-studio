@@ -1,19 +1,25 @@
 # Huangxiangru's Lab Westlake University
 
-[打开高清交互演示](https://raconiy.github.io/westlake-plant-growth-studio/)
+[**Open the plant growth studio ↗**](https://raconiy.github.io/westlake-plant-growth-studio/)
 
-四部植物生长短片展示玫瑰、牡丹、水仙和番红花从出土、展叶、结苞到绽放的过程。每部影片有 65 个原生生成帧，分辨率 1280 × 720，按每秒 8 帧播放。
+Watch a shoot break through the soil, trace the first leaves up the stem, and see the flower open. Four botanical studies pair a native **1280 × 720** film with the animated 3D plant that guided its growth.
 
-[![四个物种的展叶与开花画面](growth.jpg)](https://raconiy.github.io/westlake-plant-growth-studio/)
+[![Rose, peony, daffodil, and crocus at leaf and bloom stages](growth.jpg)](https://raconiy.github.io/westlake-plant-growth-studio/)
 
-- **看生长**　选择物种，拖动胶片或点选生长阶段。
-- **调花期**　拖动「开花时刻」即可预览同一段成片早开或晚开的效果。此操作在浏览器里重排播放时间。
-- **看资产**　切换到「4D 资产」并拖动以旋转程序生成的几何。切换到「控制图」可查看生成影片使用的结构条件。
+## Explore a plant
 
-单独查看高清影片：[玫瑰](media/rose/film.mp4) · [牡丹](media/peony/film.mp4) · [水仙](media/daffodil/film.mp4) · [番红花](media/crocus/film.mp4)。
+- **Scrub the film.** Drag along the filmstrip or jump straight to the sprout, leaves, bud, or open flower.
+- **Move the bloom.** Slide the opening time earlier or later to preview a different rhythm. The browser remaps the frames of the existing film immediately.
+- **Turn the model.** Switch to **4D model** and drag to rotate the plant at the current frame. **Control pass** shows the image sequence supplied to the video model.
 
-影片使用程序化逐株几何、配对实拍视频训练的 Wan2.1-VACE-1.3B LoRA 和模型生成的环境。四个示例使用同一个种子 43。公开演示在浏览器里播放预生成影片、渲染时序网格。新的 prompt 生成任务在实验室 GPU 服务器上运行。
+## Watch the films
 
-## 本地查看
+[Rose](media/rose/film.mp4) · [Peony](media/peony/film.mp4) · [Daffodil](media/daffodil/film.mp4) · [Crocus](media/crocus/film.mp4)
 
-在分支根目录运行 `python3 -m http.server 8000`，然后打开 [本地演示](http://localhost:8000/)。
+Each film contains 65 native frames and plays at 8 fps. A procedural plant defines the geometry, camera, and growth schedule. A Wan2.1-VACE-1.3B video model with a LoRA trained on paired footage renders the plant against a generated environment. All four examples use seed 43.
+
+The public studio plays the rendered films and draws their animated meshes locally. The lab's GPU service handles new prompt-based renders.
+
+## Run locally
+
+From this branch, run `python3 -m http.server 8000` and open [the local studio](http://localhost:8000/).
