@@ -32,9 +32,10 @@ async function loadMesh(job) {
         layout(location=0) in vec3 a;layout(location=1) in vec3 b;
         layout(location=2) in vec3 c;layout(location=3) in vec3 d;
         uniform vec3 span;uniform float phase,turn,aspect;
-        out vec3 pos;out vec3 tint;
+        out vec3 pos;out vec3 tint;out float height;
         void main(){
-            vec3 p=(mix(a,b,phase)-vec3(.5))*span;
+            vec3 point=mix(a,b,phase);height=point.z;
+            vec3 p=(point-vec3(.5))*span;
             float cs=cos(turn),sn=sin(turn);
             vec3 v=vec3(cs*p.x-sn*p.y,sn*p.x+cs*p.y,p.z);
             pos=vec3(v.x,v.z*.962-v.y*.272,v.y*.962+v.z*.272);
@@ -42,8 +43,8 @@ async function loadMesh(job) {
             tint=mix(c,d,phase);
         }`));
         gl.attachShader(prog,shader(gl.FRAGMENT_SHADER,`#version 300 es
-        precision highp float;in vec3 pos;in vec3 tint;out vec4 pixel;
-        void main(){vec3 n=normalize(cross(dFdx(pos),dFdy(pos)));float l=.63+.37*abs(dot(n,normalize(vec3(-.45,.72,.51))));pixel=vec4(tint*l,1.);}`));
+        precision highp float;in vec3 pos;in vec3 tint;in float height;uniform float surface;out vec4 pixel;
+        void main(){if(height<surface)discard;vec3 n=normalize(cross(dFdx(pos),dFdy(pos)));float l=.63+.37*abs(dot(n,normalize(vec3(-.45,.72,.51))));pixel=vec4(tint*l,1.);}`));
         gl.linkProgram(prog);if(!gl.getProgramParameter(prog,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(prog));gl.useProgram(prog);
         const buffer=(type,view)=>{const b=gl.createBuffer();gl.bindBuffer(type,b);gl.bufferData(type,view,gl.STATIC_DRAW);return b;};
         const faces=buffer(gl.ELEMENT_ARRAY_BUFFER,new Uint32Array(data,offset,info.indices));
@@ -52,6 +53,7 @@ async function loadMesh(job) {
         const colors=buffer(gl.ARRAY_BUFFER,new Uint8Array(data,coordOffset+2*count*info.frames,count*info.frames));
         const loc=s=>gl.getUniformLocation(prog,s);
         const phase=loc('phase'),turn=loc('turn'),aspect=loc('aspect');
+        gl.uniform1f(loc('surface'),info.soil?-info.bottom/info.span[2]:-1);
         gl.uniform3fv(loc('span'),info.span.map(s=>1.78*s/Math.max(...info.span)));
         gl.uniform1f(loc('aspect'),canvas.width/canvas.height);
         gl.enable(gl.DEPTH_TEST);

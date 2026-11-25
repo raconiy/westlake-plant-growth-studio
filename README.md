@@ -20,6 +20,8 @@ Watch a shoot break through the soil, trace the first leaves up the stem, and se
 
 Each film contains 65 native frames and plays at 8 fps. A procedural plant defines the geometry, camera, and growth schedule. A Wan2.1-VACE-1.3B video model with a LoRA trained on paired footage renders the plant against a generated environment. All four examples use seed 43.
 
+At emergence, the shoot starts underground. Its tip lifts a local patch of soil, separates the clods, and passes between them. The clods carry their surface texture as they move. The distant garden uses a generated image projected into the scene. [Compare the first 23 rose frames at half speed.](media/rose/emergence-comparison.mp4)
+
 The public studio plays the rendered films and draws their animated meshes locally. The lab's GPU service handles new prompt-based renders.
 
 ## Run locally

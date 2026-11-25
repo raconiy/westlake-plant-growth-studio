@@ -1,6 +1,6 @@
 'use strict';
 const $=id=>document.getElementById(id),film=$('film'),proxy=$('proxy');
-let job=null, view='film', selectedOpen=.78, originalOpen=.78, tracking=true, drag=null;
+let job=null, view='film', selectedOpen=.78, originalOpen=.78, tracking=false, drag=null;
 let catalogue=[];
 const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v));
 const secs=x=>'00:'+Math.max(0,Number.isFinite(x)?x:0).toFixed(1).padStart(4,'0');
@@ -64,7 +64,7 @@ async function show(which){
         await loadMesh(job);
         if(id!==viewRequest){if(view!=='mesh')$('meshPanel').hidden=true;return;}
         if(!document.querySelector('#meshCanvas').dataset.ready){$('emptyFilm').textContent='This browser could not display the 4D model.';}
-        else{$('meshPanel').hidden=false;$('emptyFilm').hidden=true;if(film.currentTime<.5)seek(originalOpen);}
+        else{$('meshPanel').hidden=false;$('emptyFilm').hidden=true;}
     }else if(which==='proxy'&&job?.proxy){const path=await playable(job.proxy);if(id!==viewRequest)return;proxy.preload='auto';setSrc(proxy,path);proxy.load();proxy.addEventListener('loadedmetadata',()=>{if(view==='proxy')proxy.currentTime=film.currentTime;},{once:true});}
     refresh();
 }
@@ -101,7 +101,7 @@ async function selectSpecies(){
     job={id:entry.species,video:dir+'film.mp4',mesh:dir+'mesh.bin.gz',proxy:dir+'control.mp4',
          spec:{view:'oblique',plants:[{species:entry.species,open:entry.open}]},
          story:{frames:entry.frames,fps:entry.fps,seconds:entry.frames/entry.fps,items:entry.chapters,focus:entry.focus,studio_assets:true}};
-    tracking=true;film.dataset.hd='true';$('focusShot').setAttribute('aria-pressed','true');
+    tracking=false;film.dataset.hd='true';$('focusShot').setAttribute('aria-pressed','false');
     $('plate').dataset.species=entry.species;$('filmTitle').textContent=entry.title;$('botanical').textContent=entry.latin;
     $('portrait').src=dir+'cover.webp';$('portrait').alt=entry.title+' flower detail';
     film.poster=dir+'poster.jpg';$('pixelSize').textContent=entry.width+' × '+entry.height;
