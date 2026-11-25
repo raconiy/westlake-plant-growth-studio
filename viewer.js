@@ -39,6 +39,19 @@ function changeOpen(v){const t=logical();selectedOpen=clamp(v,.25,.92);$('onset'
 }
 $('onset').onpointerdown=()=>{if(logical()<.15||logical()>.95)seek(selectedOpen);};$('onset').oninput=e=>changeOpen(Number(e.target.value)/100);$('undoTiming').onclick=()=>changeOpen(originalOpen);
 function setSrc(el,src){if(src&&el.getAttribute('src')!==src)el.src=src;else if(!src&&el.hasAttribute('src')){el.pause();el.removeAttribute('src');el.load();}}
+// A basic classroom file server may not implement byte-range requests.
+const objectUrls=new Map();
+async function playable(path){
+    try{
+        const headers=await fetch(path,{method:'HEAD'});
+        if(!headers.ok || headers.headers.get('Accept-Ranges')?.toLowerCase()==='bytes')return path;
+        if(!objectUrls.has(path))objectUrls.set(path,fetch(path).then(async r=>{
+            if(!r.ok)throw Error('影片读取失败');
+            return URL.createObjectURL(await r.blob());
+        }).catch(e=>{objectUrls.delete(path);throw e;}));
+        return await objectUrls.get(path);
+    }catch{return path;}
+}
 let viewRequest=0;
 async function show(which){
     const id=++viewRequest;view=which;
@@ -52,7 +65,7 @@ async function show(which){
         if(id!==viewRequest){if(view!=='mesh')$('meshPanel').hidden=true;return;}
         if(!document.querySelector('#meshCanvas').dataset.ready){$('emptyFilm').textContent='此浏览器无法显示 4D 资产';}
         else{$('meshPanel').hidden=false;$('emptyFilm').hidden=true;if(film.currentTime<.5)seek(originalOpen);}
-    }else if(which==='proxy'&&job?.proxy){proxy.preload='auto';setSrc(proxy,job.proxy);proxy.load();proxy.addEventListener('loadedmetadata',()=>{if(view==='proxy')proxy.currentTime=film.currentTime;},{once:true});}
+    }else if(which==='proxy'&&job?.proxy){const path=await playable(job.proxy);if(id!==viewRequest)return;proxy.preload='auto';setSrc(proxy,path);proxy.load();proxy.addEventListener('loadedmetadata',()=>{if(view==='proxy')proxy.currentTime=film.currentTime;},{once:true});}
     refresh();
 }
 for(const b of document.querySelectorAll('[data-view]'))b.onclick=()=>show(b.dataset.view);
@@ -80,7 +93,7 @@ $('stripBox').addEventListener('pointermove',e=>{
 for(const event of ['pointerleave','pointerup','pointercancel'])$('stripBox').addEventListener(event,()=>{hover.hidden=true;});
 function timing(j){originalOpen=j.spec?.plants?.[0]?.open||.78;selectedOpen=originalOpen;$('onset').value=Math.round(100*originalOpen);$('onset').style.setProperty('--at',((originalOpen-.25)/.67*100)+'%');$('onsetValue').textContent='第 '+Math.round(originalOpen*((j.story?.frames||1)-1))+' 帧';$('undoTiming').disabled=true;}
 
-function selectSpecies(){
+async function selectSpecies(){
     const key=location.hash.slice(1);
     const entry=catalogue.find(item=>item.species===key)||catalogue[0];
     if(!entry||job?.id===entry.species)return;
@@ -101,7 +114,10 @@ function selectSpecies(){
         b.onclick=()=>seek(inverse(clamp(item.seconds/(length()||1))));$('sequence').append(b);
     }
     $('stripArt').style.backgroundImage='url('+dir+'strip.jpg)';$('hoverFrame').hidden=true;
-    setSrc(proxy,null);film.pause();setSrc(film,job.video);$('singleTiming').hidden=false;timing(job);show('film');
+    setSrc(proxy,null);film.pause();
+    const path=await playable(dir+'film.mp4');
+    if(job.id!==entry.species)return;
+    setSrc(film,path);$('singleTiming').hidden=false;timing(job);show('film');
     if(!matchMedia('(prefers-reduced-motion:reduce)').matches)play();
 }
 window.addEventListener('hashchange',selectSpecies);
