@@ -2,7 +2,7 @@
 
 [**Open the plant growth studio ↗**](https://raconiy.github.io/westlake-plant-growth-studio/)
 
-Watch a shoot break through the soil, trace the first leaves up the stem, and see the flower open. Four botanical studies pair a native **1280 × 720** film with the animated 3D plant that guided its growth.
+A rose opens in a sunlit cottage border, a peony grows in a walled courtyard, a daffodil rises beneath apple trees, and a crocus flowers between slate and moss. Each study pairs a native **1280 × 720** growth film with its animated 3D plant.
 
 [![Rose, peony, daffodil, and crocus at leaf and bloom stages](growth.jpg)](https://raconiy.github.io/westlake-plant-growth-studio/)
 
@@ -18,7 +18,9 @@ Watch a shoot break through the soil, trace the first leaves up the stem, and se
 
 Each film contains 65 native frames and plays at 8 fps. A procedural plant defines the geometry, camera, and growth schedule. A Wan2.1-VACE-1.3B video model with a LoRA trained on paired footage renders the plant against a generated environment. All four examples use seed 43.
 
-At emergence, the shoot starts underground. Its tip lifts a local patch of soil, separates the clods, and passes between them. The clods carry their surface texture as they move. The distant garden uses a generated image projected into the scene. [Compare the first 23 rose frames at half speed.](media/rose/emergence-comparison.mp4)
+The garden determines the direction, softness, and color of the light on the plant. The renderer uses the animated mesh to shade leaf folds and veins, transmit light through thin petals, and cast shadows onto the ground. [Compare the lighting on all four plants.](media/light-comparison.mp4)
+
+In the rose study, the shoot opens a narrow seam in the soil. Individual aggregates rotate, collide, and settle under gravity. The comparison holds the original garden, camera path, plant, and seed fixed. Its second pass follows two grains through the opening. [Watch the half-speed rose comparison.](media/rose/emergence-comparison.mp4)
 
 The public studio plays the rendered films and draws their animated meshes locally. The lab's GPU service handles new prompt-based renders.
 

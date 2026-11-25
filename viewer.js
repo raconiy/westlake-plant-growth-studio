@@ -98,13 +98,16 @@ async function selectSpecies(){
     const entry=catalogue.find(item=>item.species===key)||catalogue[0];
     if(!entry||job?.id===entry.species)return;
     const dir='./media/'+entry.species+'/';
-    job={id:entry.species,video:dir+'film.mp4',mesh:dir+'mesh.bin.gz',proxy:dir+'control.mp4',
+    const media=file=>dir+file+'?v=gardens43';
+    $('gardenName').textContent=entry.garden;
+    $('soilStudy').hidden=entry.species!=='rose';
+    job={id:entry.species,video:media('film.mp4'),mesh:media('mesh.bin.gz'),proxy:media('control.mp4'),
          spec:{view:'oblique',plants:[{species:entry.species,open:entry.open}]},
          story:{frames:entry.frames,fps:entry.fps,seconds:entry.frames/entry.fps,items:entry.chapters,focus:entry.focus,studio_assets:true}};
     tracking=false;film.dataset.hd='true';$('focusShot').setAttribute('aria-pressed','false');
     $('plate').dataset.species=entry.species;$('filmTitle').textContent=entry.title;$('botanical').textContent=entry.latin;
-    $('portrait').src=dir+'cover.webp';$('portrait').alt=entry.title+' flower detail';
-    film.poster=dir+'poster.jpg';$('pixelSize').textContent=entry.width+' × '+entry.height;
+    $('portrait').src=media('cover.webp');$('portrait').alt=entry.title+' flower detail';
+    film.poster=media('poster.jpg');$('pixelSize').textContent=entry.width+' × '+entry.height;
     $('download').href=job.video;$('download').download=entry.species+'-720p.mp4';
     for(const a of $('species').children)a.setAttribute('aria-current',String(a.dataset.sp===entry.species));
     $('sequence').replaceChildren();
@@ -113,9 +116,9 @@ async function selectSpecies(){
         b.textContent=item.label;b.title='Frame '+item.frame+'';
         b.onclick=()=>seek(inverse(clamp(item.seconds/(length()||1))));$('sequence').append(b);
     }
-    $('stripArt').style.backgroundImage='url('+dir+'strip.jpg)';$('hoverFrame').hidden=true;
+    $('stripArt').style.backgroundImage='url('+media('strip.jpg')+')';$('hoverFrame').hidden=true;
     setSrc(proxy,null);setSrc(film,null);$('singleTiming').hidden=false;timing(job);show('film');
-    const path=await playable(dir+'film.mp4');
+    const path=await playable(job.video);
     if(job.id!==entry.species)return;
     setSrc(film,path);
     if(!matchMedia('(prefers-reduced-motion:reduce)').matches)play();
@@ -123,13 +126,13 @@ async function selectSpecies(){
 window.addEventListener('hashchange',selectSpecies);
 (async()=>{
     try{
-        const response=await fetch('./films.json');
+        const response=await fetch('./films.json?v=gardens43');
         if(!response.ok)throw Error('Could not load the collection.');
         catalogue=await response.json();
         for(const entry of catalogue){
             const a=document.createElement('a'),img=new Image(),label=document.createElement('span');
             a.className='pick';a.dataset.sp=entry.species;a.href='#'+entry.species;
-            img.src='./media/'+entry.species+'/cover.webp';img.alt='';label.textContent=entry.title;
+            img.src='./media/'+entry.species+'/cover.webp?v=gardens43';img.alt='';label.textContent=entry.title;
             a.append(img,label);$('species').append(a);
         }
         selectSpecies();
