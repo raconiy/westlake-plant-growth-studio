@@ -1,10 +1,12 @@
 # Huangxiangru's Lab Westlake University
 
-[**Open the plant growth studio ↗**](https://raconiy.github.io/westlake-plant-growth-studio/)
+[**Open the plant growth studio ↗**](https://raw.githack.com/raconiy/westlake-plant-growth-studio/gh-pages/index.html)
+
+Select **Open the page** if the preview host asks for confirmation.
 
 Watch a shoot break through the soil, trace the first leaves up the stem, and see the flower open. Four botanical studies pair a native **1280 × 720** film with the animated 3D plant that guided its growth.
 
-[![Rose, peony, daffodil, and crocus at leaf and bloom stages](growth.jpg)](https://raconiy.github.io/westlake-plant-growth-studio/)
+[![Rose, peony, daffodil, and crocus at leaf and bloom stages](growth.jpg)](https://raw.githack.com/raconiy/westlake-plant-growth-studio/gh-pages/index.html)
 
 ## Explore a plant
 
