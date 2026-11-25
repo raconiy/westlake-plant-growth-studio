@@ -114,10 +114,10 @@ async function selectSpecies(){
         b.onclick=()=>seek(inverse(clamp(item.seconds/(length()||1))));$('sequence').append(b);
     }
     $('stripArt').style.backgroundImage='url('+dir+'strip.jpg)';$('hoverFrame').hidden=true;
-    setSrc(proxy,null);film.pause();
+    setSrc(proxy,null);setSrc(film,null);$('singleTiming').hidden=false;timing(job);show('film');
     const path=await playable(dir+'film.mp4');
     if(job.id!==entry.species)return;
-    setSrc(film,path);$('singleTiming').hidden=false;timing(job);show('film');
+    setSrc(film,path);
     if(!matchMedia('(prefers-reduced-motion:reduce)').matches)play();
 }
 window.addEventListener('hashchange',selectSpecies);
