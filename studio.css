@@ -33,3 +33,8 @@ body{background:var(--page);color:var(--paper);font-family:'DM Sans',Arial,sans-
 @media(min-width:691px) and (max-width:1099px){#species{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.pick{text-align:center}}
 .filmLinks{display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px}.filmLinks a[hidden]{display:none}
 @media(max-width:690px){.viewerFooter{align-items:flex-start;flex-direction:column}.filmLinks{row-gap:6px}}
+
+.featureFilm{margin-left:auto;color:var(--paper);font:500 13px/1.2 'DM Sans',sans-serif;white-space:nowrap;text-decoration:none}
+.featureFilm:hover,.featureFilm:focus-visible{text-decoration:underline;text-underline-offset:.3em}
+.featureFilm+.logButton{margin-left:0}
+@media(max-width:600px){.featureFilm{font-size:11px}.top .appName{flex:1;max-width:150px;min-width:0}.top{column-gap:8px}}
