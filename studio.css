@@ -38,3 +38,6 @@ body{background:var(--page);color:var(--paper);font-family:'DM Sans',Arial,sans-
 .featureFilm:hover,.featureFilm:focus-visible{text-decoration:underline;text-underline-offset:.3em}
 .featureFilm+.logButton{margin-left:0}
 @media(max-width:600px){.featureFilm{font-size:11px}.top .appName{flex:1;max-width:150px;min-width:0}.top{column-gap:8px}}
+
+.cameraLink + .featureFilm{margin-left:0}
+@media(max-width:700px){.top{flex-wrap:wrap;height:auto;min-height:62px;padding:.75rem 0;row-gap:.55rem}.top .cameraLink{margin-left:auto}.top .appName{font-size:.66rem;letter-spacing:.025em;padding-left:.6rem}}
