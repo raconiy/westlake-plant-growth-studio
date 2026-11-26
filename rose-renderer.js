@@ -37,10 +37,13 @@ function programFor(gl) {
   return program;
 }
 
-async function bitmap(url) {
-  const response=await fetch(url);
-  if(!response.ok) throw Error('Unable to load '+url);
-  const blob=await response.blob();
+async function bitmap(input) {
+  let blob=input;
+  if(typeof input==='string'){
+    const response=await fetch(input,{cache:'force-cache'});
+    if(!response.ok)throw Error('Unable to load '+input);
+    blob=await response.blob();
+  }
   if(window.createImageBitmap) {
     try { return await createImageBitmap(blob,{colorSpaceConversion:'none',premultiplyAlpha:'none'}); }
     catch { /* Some WebKit versions do not implement these bitmap options. */ }
@@ -53,7 +56,7 @@ async function bitmap(url) {
 export class RoseRenderer {
   constructor(canvas,meta,base,onError) {
     this.meta=meta;this.base=base;this.onError=onError;this.pages=new Map();this.queue=[];this.busy=0;
-    this.pinned=new Set();this.clock=0;
+    this.pinned=new Set();this.clock=0;this.maxPages=meta.bundle?7:8;this.bundle=null;
     const gl=canvas.getContext('webgl2',{alpha:false,antialias:false,depth:false,stencil:false}) ||
              canvas.getContext('webgl',{alpha:false,antialias:false,depth:false,stencil:false});
     if(!gl || gl.getParameter(gl.MAX_TEXTURE_SIZE)<meta.width*meta.columns) throw Error('WebGL unavailable');
@@ -111,8 +114,18 @@ export class RoseRenderer {
 
   async fetchPage(page) {
     const [x,y]=page.key.split(',').map(k=>k.padStart(2,'0'));
-    const path=this.base+'p'+x+'-'+y;
-    const images=await Promise.allSettled([bitmap(path+'.jpg'),bitmap(path+'.png')]);
+    const name='p'+x+'-'+y,path=this.base+name;
+    let photo=path+(this.meta.images||'.jpg'),motion=path+(this.meta.motion||'.png');
+    if(this.meta.bundle){
+      this.bundle??=fetch(this.base+this.meta.bundle,{cache:'force-cache'}).then(r=>{
+        if(!r.ok)throw Error('Navigation data unavailable');return r.blob();
+      }).catch(err=>{this.bundle=null;throw err;});
+      const bytes=await this.bundle;
+      const [offset,pixels,vectors]=this.meta.index[name];
+      photo=bytes.slice(offset,offset+pixels,'image/webp');
+      motion=bytes.slice(offset+pixels,offset+pixels+vectors,'image/webp');
+    }
+    const images=await Promise.allSettled([bitmap(photo),bitmap(motion)]);
     const sources=images.filter(r=>r.status==='fulfilled').map(r=>r.value);
     const gl=this.gl,textures=[];
     try{
@@ -131,13 +144,13 @@ export class RoseRenderer {
   trim(){
     const ready=[...this.pages.values()].filter(p=>p.state==='ready');
     const available=ready.filter(p=>!this.pinned.has(p.key)).sort((a,b)=>a.used-b.used);
-    while(ready.length>10 && available.length){
+    while(ready.length>this.maxPages && available.length){
       const p=available.shift();p.textures.forEach(t=>this.gl.deleteTexture(t));this.pages.delete(p.key);ready.pop();
     }
   }
 
-  prepare(pose) {
-    const nodes=this.coordinates(pose);
+  warm(poses) {
+    const nodes=poses.flatMap(pose=>this.coordinates(pose));
     const needed=nodes.filter(n=>n.w>0.000001);
     const keys=[...new Set(needed.map(n=>n.key))];
     this.pinned=new Set(keys);
@@ -148,6 +161,8 @@ export class RoseRenderer {
     this.schedule();
     return keys.every(k=>this.pages.get(k)?.state==='ready');
   }
+
+  prepare(pose){return this.warm([pose]);}
 
   prefetch(poses){
     const next=new Set(this.pinned);

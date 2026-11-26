@@ -1,14 +1,24 @@
-import {RoseRenderer} from './rose-renderer.js';
+import {RoseRenderer} from './rose-renderer.js?v=garden-2';
 
 const el=id=>document.getElementById(id);
 const canvas=el('rose'),play=el('play'),bloom=el('bloom'),status=el('status');
 const keys=new Set(),pointers=new Map(),pad=[...document.querySelectorAll('[data-key]')];
 const names={left:'Orbit left',right:'Orbit right',up:'Move closer',down:'Pull back'};
 const clamp=(v,lo,hi)=>Math.min(hi,Math.max(lo,v));
-const base='./media/rose-camera-v1/';
-let meta,renderer,shown,target,pending=false,ready=false,stopped=false,playing=false;
+const species={
+  rose:['Rose','Rosa'],crocus:['Crocus','Crocus'],daffodil:['Daffodil','Narcissus'],peony:['Peony','Paeonia']
+};
+const requested=new URLSearchParams(location.search).get('plant');
+const published=[...document.querySelectorAll('#plants a')].map(a=>new URL(a.href).searchParams.get('plant'));
+const plant=published.includes(requested)?requested:'rose', [name,latin]=species[plant];
+const base='./media/cameras/'+plant+'/';
+el('plant-title').textContent=name+' in motion';el('latin').textContent=latin;
+document.title=name+' in motion · Huangxiangru’s Lab Westlake University';
+el('poster').src=base+'poster.jpg';el('poster').alt=name+' in its garden';
+document.querySelectorAll('#plants a').forEach(a=>{if(new URL(a.href).searchParams.get('plant')===plant)a.setAttribute('aria-current','page');});
+let meta,renderer,navigation,quality,shown,target,pending=false,ready=false,stopped=false,playing=false;
 let lastTime=0,frame=0,lastPrefetch=0,waitingSince=0,drag=null,pinch=null;
-let minStage,maxStage,minYaw,maxYaw;
+let minStage,maxStage,minYaw,maxYaw,startup;
 
 function message(text) {
   if(status.textContent!==text)status.textContent=text;
@@ -50,17 +60,25 @@ function prefetch(t){
   for(const sign of [-1,1])
     forecast.push(normalized({...pose,yaw:pose.yaw+sign*(keys.size?2.5:4.5)}));
   if(playing)forecast.push(normalized({...pose,stage:pose.stage+.92}));
-  renderer.prefetch(forecast);
+  renderer.prefetch(forecast);navigation.prefetch(forecast);
 }
 function tick(time) {
   if(stopped || document.hidden)return;
   const dt=lastTime?Math.min((time-lastTime)/1000,.045):0;lastTime=time;
+  if(!ready){
+    renderer.prepare(shown);
+    if(!navigation.warm(startup)){message('Opening the camera…');frame=requestAnimationFrame(tick);return;}
+  }
   let wanted=pending?{...target}:nudge(shown,dt);
   if(ready && playing && (!pending || wanted.stage===shown.stage))wanted.stage=Math.min(maxStage,shown.stage+1.16*dt);
   const changed=!ready || wanted.yaw!==shown.yaw || wanted.zoom!==shown.zoom || wanted.stage!==shown.stage;
-  if(changed){
-    if(renderer.prepare(wanted)){
-      renderer.draw(wanted);shown={...wanted};target=shown;pending=false;
+  if(changed || quality!=='fine'){
+    const exact=renderer.prepare(wanted),backup=navigation.prepare(wanted);
+    if(exact || backup){
+      if(exact)renderer.draw(wanted);else navigation.draw(wanted);
+      quality=exact?'fine':'navigation';canvas.dataset.quality=quality;
+      canvas.classList.toggle('fine',exact);el('navigation').classList.toggle('active',!exact);
+      shown={...wanted};target=shown;pending=false;
       if(!ready){ready=true;canvas.classList.add('ready');el('poster').hidden=true;play.disabled=false;bloom.disabled=false;}
       if(shown.stage>=maxStage)setPlaying(false);
       updateReadout();waitingSince=0;message('');
@@ -148,12 +166,14 @@ document.addEventListener('fullscreenchange',()=>{const s=document.fullscreenEle
 canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();failure('Camera graphics were interrupted.');});
 async function start(){
   bloom.disabled=true;
-  const response=await fetch(base+'bank.json');
-  if(!response.ok)throw Error('Missing camera metadata');
-  meta=await response.json();minStage=meta.stages[0];maxStage=meta.stages.at(-1);
+  async function manifest(url){const r=await fetch(url);if(!r.ok)throw Error('Missing camera metadata');return r.json();}
+  const manifests=await Promise.all([manifest(base+'bank.json'),manifest(base+'navigation/bank.json')]);
+  meta=manifests[0];minStage=meta.stages[0];maxStage=meta.stages.at(-1);
   minYaw=meta.angles[0];maxYaw=meta.angles.at(-1);
   shown={...meta.initial};target=shown;
-  renderer=new RoseRenderer(canvas,meta,base,()=>failure());
+  startup=[-10,0,12].flatMap(delta=>[0,1.5].map(stage=>normalized({...shown,yaw:shown.yaw+delta,stage:shown.stage+stage})));
+  renderer=new RoseRenderer(canvas,meta,base,()=>{if(!navigation)failure();});
+  navigation=new RoseRenderer(el('navigation'),manifests[1],base+'navigation/',()=>{if(!ready)failure();});
   setPlaying(!matchMedia('(prefers-reduced-motion: reduce)').matches);
   frame=requestAnimationFrame(tick);
 }
