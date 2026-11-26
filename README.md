@@ -2,6 +2,8 @@
 
 [**Open the plant growth studio ↗**](https://raconiy.github.io/westlake-plant-growth-studio/)
 
+**The Garden Hours** follows four gardens from dawn to dusk. Animated plant geometry guides the eight botanical shots. Wan2.2 A14B generates the footage at 1024 × 480. The widescreen release is mastered at 1920 × 900 and 24 fps with motion interpolation and an original score. [Watch the film ↗](https://raconiy.github.io/westlake-plant-growth-studio/garden-hours.html)
+
 A rose opens in a sunlit cottage border, a peony grows in a walled courtyard, a daffodil rises beneath apple trees, and a crocus flowers between slate and moss. Each study pairs a native **1280 × 720** growth film with its animated 3D plant.
 
 [![Rose, peony, daffodil, and crocus at leaf and bloom stages](https://raw.githubusercontent.com/raconiy/westlake-plant-growth-studio/demo/native-720p/growth.jpg)](https://raconiy.github.io/westlake-plant-growth-studio/)
