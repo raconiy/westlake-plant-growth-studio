@@ -4,7 +4,11 @@
 
 **The Garden Hours** follows four gardens from dawn to dusk. Its 80-second edition includes the measured rose camera replay and the original chamber score *When the Garden Turns*. [Watch the film](https://raconiy.github.io/westlake-plant-growth-studio/garden-hours.html)
 
-[**Explore the interactive rose**](https://raconiy.github.io/westlake-plant-growth-studio/rose-camera.html). Use the arrow keys or touch controls to orbit and change distance, press Space to pause growth, or scrub the bloom slider. The browser reconstructs the selected pose from native 1024 × 480 samples of the studio renderer. It uses a 45-degree camera arc and 41 growth stages. The view and growth clock respond independently on the visitor’s device.
+**Choose a live camera.** [Rose](https://raconiy.github.io/westlake-plant-growth-studio/camera.html?plant=rose) · [Crocus](https://raconiy.github.io/westlake-plant-growth-studio/camera.html?plant=crocus) · [Daffodil](https://raconiy.github.io/westlake-plant-growth-studio/camera.html?plant=daffodil) · [Peony](https://raconiy.github.io/westlake-plant-growth-studio/camera.html?plant=peony)
+
+Drag or press the left and right arrows to orbit. Use the up and down arrows or pinch to change distance. Press Space to hold a flower mid-bloom, turn it while paused, or move the bloom slider to revisit an earlier stage.
+
+Each garden has its own 45-degree camera arc, 41 bloom stages and native 1024 × 480 views. Wan2.2-A14B reference footage is prepared on the lab server. The browser uses WebGL to reconstruct the requested viewpoint and bloom stage locally. A full-resolution navigation layer responds while finer samples stream.
 
 A rose opens in a sunlit cottage border, a peony grows in a walled courtyard, a daffodil rises beneath apple trees, and a crocus flowers between slate and moss. Each study pairs a native **1280 × 720** growth film with its animated 3D plant.
 

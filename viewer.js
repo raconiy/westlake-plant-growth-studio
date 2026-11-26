@@ -100,6 +100,7 @@ async function selectSpecies(){
     const dir='./media/'+entry.species+'/';
     const media=file=>dir+file+'?v=gardens43';
     $('gardenName').textContent=entry.garden;
+    $('specimenCamera').href='./camera.html?plant='+encodeURIComponent(entry.species);
     $('soilStudy').hidden=entry.species!=='rose';
     job={id:entry.species,video:media('film.mp4'),mesh:media('mesh.bin.gz'),proxy:media('control.mp4'),
          spec:{view:'oblique',plants:[{species:entry.species,open:entry.open}]},

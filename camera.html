@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="dark">
   <link rel="icon" href="data:,">
-  <meta name="description" content="Orbit a growing rose, step closer, and hold a moment in bloom. An interactive study by Huangxiangru's Lab Westlake University.">
-  <meta property="og:title" content="Rose in motion · The Garden Hours">
+  <meta name="description" content="Orbit a rose, crocus, daffodil, or peony. Step closer and hold a moment in bloom. An interactive study by Huangxiangru's Lab Westlake University.">
+  <meta property="og:title" content="Four flowers in motion · The Garden Hours">
   <meta property="og:image" content="https://raconiy.github.io/westlake-plant-growth-studio/media/cameras/rose/poster.jpg">
   <title>Rose in motion · Huangxiangru's Lab Westlake University</title>
   <link rel="preload" as="font" href="./fonts/instrument-serif.woff2" type="font/woff2" crossorigin>
@@ -16,7 +16,7 @@
 <header class="mast"><a class="collection" href="./">Flora<span>.</span></a><span class="lab">Huangxiangru's Lab <span>Westlake University</span></span><a href="./garden-hours.html">Watch the film</a></header>
 <main>
   <div class="heading"><div class="specimen"><h1 id="plant-title">Rose in motion</h1><i lang="la" id="latin">Rosa</i></div>
-    <nav id="plants" aria-label="Choose a live camera"><a href="?plant=rose">Rose</a></nav></div>
+    <nav id="plants" aria-label="Choose a live camera"><a href="?plant=rose">Rose</a><a href="?plant=crocus">Crocus</a><a href="?plant=daffodil">Daffodil</a><a href="?plant=peony">Peony</a></nav></div>
   <section class="instrument" id="instrument" aria-label="Interactive botanical camera">
     <div class="stage" id="stage">
       <img id="poster" width="1024" height="480" fetchpriority="high" alt="A deep crimson rose against the garden wall.">
@@ -38,7 +38,7 @@
       <div class="transport"><button id="play" type="button" disabled>Play growth</button><button id="reset" type="button">Reset view</button></div>
     </div>
   </section>
-  <p id="guide">Drag to orbit. Use ↑ and ↓ to move closer or back. Press Space to hold the bloom.</p>
+  <p id="guide">Drag or use ← and → to orbit. Pinch or use ↑ and ↓ to change distance. Press Space to hold the bloom.</p>
   <noscript>Enable JavaScript for the camera, or <a href="./garden-hours.html">watch the film</a>.</noscript>
 </main>
 <script type="module" src="./rose-camera.js?v=garden-2"></script>
